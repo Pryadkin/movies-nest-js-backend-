@@ -1,8 +1,11 @@
 {
-  "name": "back",
+  "name": "online-cinema-backend",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "online ciname - backend (nest.js)",
+  "author": {
+    "email": "pryadkin.ant@yandex.ru",
+    "name": "Anton Pryadkin"
+  },
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
