@@ -1,0 +1,42 @@
+{
+  "workbench.colorTheme": "Default Dark+", // это уже было
+  "workbench.startupEditor": "none", // это уже было
+  // удаляет лишние пробелы
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  // убрать предупреждения при удалении и переносе файлов
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  // убрать emmet по табу
+  "emmet.triggerExpansionOnTab": false,
+  "emmet.showAbbreviationSuggestions": false,
+  // открытие новых файлов в той же вкладке, в которой находишься
+  "workbench.editor.enablePreview": false,
+  // расстояние между вложенностями веток
+  "workbench.tree.indent": 20,
+  // Установить длину пробелов, Таб будет считаться двойным пробелом
+  "editor.tabSize": 4,
+  // Если нужно установить отступы для разных языков
+  // "[css]": {
+  //   "editor.tabSize": 2
+  // },
+  // вставлять пробелы вместо табов
+  "editor.insertSpaces": true,
+  // Чтобы предложения Emmet всегда были первыми в списке предложений
+  "editor.snippetSuggestions": "top",
+  // Автоматически форматировать текст при сохранении
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    // "source.fixAll.eslint": true
+    // "source.fix": true // работает аналогично eslint --fix
+    "source.fixAll.all": true
+  },
+  // отменяем форматирование при вставке, т.к. может добавлять дополнительные линии переноса
+  "editor.formatOnPaste": false,
+  // bounded объединяет два нижних параметра: ширина строки по ширине окна просмотра, максимальная ширина строки  - editor.wordWrapColumn
+  "editor.wordWrap": "bounded",
+  "editor.wordWrapColumn": 100,
+  // удаление пробелов в фигурных скобках (замена { foo } на {foo})
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+}

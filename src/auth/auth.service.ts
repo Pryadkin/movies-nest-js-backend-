@@ -1,17 +1,35 @@
-import {BadRequestException, Injectable, UnauthorizedException} from '@nestjs/common'
+import {Injectable, UnauthorizedException} from '@nestjs/common'
 import {ModelType} from '@typegoose/typegoose/lib/types';
 import {InjectModel} from 'nestjs-typegoose';
 import {UserModel} from 'src/user/user.model';
 import {AuthDto} from './dto/auth.dto';
 import {hash, genSalt, compare} from 'bcryptjs'
 import {JwtService} from '@nestjs/jwt'
+import {RefreshTokenDto} from './dto/refreshToken.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(UserModel) private readonly UserModel: ModelType<UserModel>,
-    private readonly JwtService: JwtService,
+    private readonly jwtService: JwtService,
   ){}
+
+  async getNewTokens({refreshToken}: RefreshTokenDto) {
+		if (!refreshToken) throw new UnauthorizedException('Please sign in!')
+
+		const result = await this.jwtService.verifyAsync(refreshToken)
+
+		if (!result) throw new UnauthorizedException('Invalid token or expired!')
+
+		const user = await this.UserModel.findById(result._id)
+
+		const tokens = await this.issueTokenPair(String(user._id))
+
+		return {
+			user: this.returnUserFields(user),
+			...tokens,
+		}
+	}
 
   async login(dto: AuthDto) {
     const user = await this.validationUser(dto)
@@ -24,24 +42,25 @@ export class AuthService {
     }
   }
 
-  async register(dto: AuthDto) {
-    const oldUser = await this.UserModel.findOne({email: dto.email})
-    if (oldUser) throw new BadRequestException('User with this email is already in the system')
+	async register({email, password}: AuthDto) {
+		const salt = await genSalt(10)
+		const newUser = new this.UserModel({
+			email,
+			password: await hash(password, salt),
+		})
+		const user = await newUser.save()
 
-    const salt = await genSalt(10)
+		const tokens = await this.issueTokenPair(String(user._id))
 
-    const newUser = new this.UserModel({
-      email: dto.email,
-      password: await hash(dto.password, salt)
-    })
+		return {
+			user: this.returnUserFields(user),
+			...tokens,
+		}
+	}
 
-    const tokens = await this.issueTokenPair(String(newUser._id))
-
-    return {
-      user: this.returnUserFields(newUser),
-      ...tokens
-    }
-  }
+  async findByEmail(email: string) {
+		return this.UserModel.findOne({email}).exec()
+	}
 
   async validationUser(dto: AuthDto): Promise<UserModel> {
     const user = await this.UserModel.findOne({email: dto.email})
@@ -56,15 +75,15 @@ export class AuthService {
   async issueTokenPair(userId: string) {
     const data = {_id: userId}
 
-    const refresToken = await this.JwtService.signAsync(data, {
+    const refreshToken = await this.jwtService.signAsync(data, {
       expiresIn: '15d'
     })
 
-    const accessToken = await this.JwtService.signAsync(data, {
+    const accessToken = await this.jwtService.signAsync(data, {
       expiresIn: '1h'
     })
     
-    return {refresToken, accessToken}
+    return {refreshToken, accessToken}
   }
 
   returnUserFields(user: UserModel) {

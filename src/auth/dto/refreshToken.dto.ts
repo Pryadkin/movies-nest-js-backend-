@@ -1,6 +1,6 @@
 import {IsString} from 'class-validator';
 
-export class RefresTokenDto {
+export class RefreshTokenDto {
     @IsString({
         message: 'You did not pass refresh token or it is not a string!'
     })

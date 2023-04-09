@@ -1,4 +1,4 @@
-import {Inject, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import {PassportStrategy} from '@nestjs/passport';
 import {ModelType} from '@typegoose/typegoose/lib/types';
@@ -7,13 +7,13 @@ import {ExtractJwt, Strategy} from 'passport-jwt';
 import {UserModel} from 'src/user/user.model';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy){
+export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
         private readonly configService: ConfigService,
         @InjectModel(UserModel) private readonly UserModel: ModelType<UserModel>
-    ){
+    ) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken,
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             iqnoreExpiration: true,
             secretOrKey: configService.get('JWT_SECRET')
         })
