@@ -12,24 +12,25 @@ export class AuthService {
   constructor(
     @InjectModel(UserModel) private readonly UserModel: ModelType<UserModel>,
     private readonly jwtService: JwtService,
-  ){}
+  ) { }
 
   async getNewTokens({refreshToken}: RefreshTokenDto) {
-		if (!refreshToken) throw new UnauthorizedException('Please sign in!')
+    if (!refreshToken) throw new UnauthorizedException('Please sign in!')
 
-		const result = await this.jwtService.verifyAsync(refreshToken)
+    // result - { _id: '643316933ee86fbfdde577eb', iat: 1681069745, exp: 1682365745 }
+    const result = await this.jwtService.verifyAsync(refreshToken)
 
-		if (!result) throw new UnauthorizedException('Invalid token or expired!')
+    if (!result) throw new UnauthorizedException('Invalid token or expired!')
 
-		const user = await this.UserModel.findById(result._id)
+    const user = await this.UserModel.findById(result._id)
 
-		const tokens = await this.issueTokenPair(String(user._id))
+    const tokens = await this.issueTokenPair(String(user._id))
 
-		return {
-			user: this.returnUserFields(user),
-			...tokens,
-		}
-	}
+    return {
+      user: this.returnUserFields(user),
+      ...tokens,
+    }
+  }
 
   async login(dto: AuthDto) {
     const user = await this.validationUser(dto)
@@ -42,25 +43,25 @@ export class AuthService {
     }
   }
 
-	async register({email, password}: AuthDto) {
-		const salt = await genSalt(10)
-		const newUser = new this.UserModel({
-			email,
-			password: await hash(password, salt),
-		})
-		const user = await newUser.save()
+  async register({email, password}: AuthDto) {
+    const salt = await genSalt(10)
+    const newUser = new this.UserModel({
+      email,
+      password: await hash(password, salt),
+    })
+    const user = await newUser.save()
 
-		const tokens = await this.issueTokenPair(String(user._id))
+    const tokens = await this.issueTokenPair(String(user._id))
 
-		return {
-			user: this.returnUserFields(user),
-			...tokens,
-		}
-	}
+    return {
+      user: this.returnUserFields(user),
+      ...tokens,
+    }
+  }
 
   async findByEmail(email: string) {
-		return this.UserModel.findOne({email}).exec()
-	}
+    return this.UserModel.findOne({email}).exec()
+  }
 
   async validationUser(dto: AuthDto): Promise<UserModel> {
     const user = await this.UserModel.findOne({email: dto.email})
@@ -82,7 +83,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(data, {
       expiresIn: '1h'
     })
-    
+
     return {refreshToken, accessToken}
   }
 

@@ -1,11 +1,11 @@
 import {
   BadRequestException,
-  Body, 
-  Controller, 
-  HttpCode, 
-  HttpStatus, 
-  Post, 
-  UsePipes, 
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UsePipes,
   ValidationPipe
 } from '@nestjs/common'
 import {AuthService} from './auth.service';
@@ -14,7 +14,7 @@ import {RefreshTokenDto} from './dto/refreshToken.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly AuthService: AuthService) {}
+  constructor(private readonly AuthService: AuthService) { }
 
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
@@ -29,16 +29,16 @@ export class AuthController {
   async login(@Body() dto: AuthDto) {
     return this.AuthService.login(dto)
   }
-  
-	@UsePipes(new ValidationPipe())
-	@Post('register')
-	async register(@Body() dto: AuthDto) {
-		const oldUser = await this.AuthService.findByEmail(dto.email)
-		if (oldUser)
-			throw new BadRequestException(
-				'User with this email is already in the system'
-			)
 
-		return this.AuthService.register(dto)
-	}
+  @UsePipes(new ValidationPipe())
+  @Post('register')
+  async register(@Body() dto: AuthDto) {
+    const oldUser = await this.AuthService.findByEmail(dto.email)
+    if (oldUser)
+      throw new BadRequestException(
+        'User with this email is already in the system'
+      )
+
+    return this.AuthService.register(dto)
+  }
 }

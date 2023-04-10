@@ -1,12 +1,15 @@
+import {Auth} from 'src/auth/decorators/auth.decorator';
 import {UserService} from './user.service';
-import {Body, Controller, Post} from '@nestjs/common'
+import {Controller, Get} from '@nestjs/common'
+import {User} from './decorators/user.decorator';
 
-@Controller('auth')
+@Controller('users')
 export class UserController {
-  constructor(private readonly UserService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
-  @Post('register')
-  async register(@Body() dto: any) {
-    return this.UserService
+  @Get('profile')
+  @Auth()
+  async getProfile(@User('_id') _id: string) {
+    return this.userService.byId(_id)
   }
 }
