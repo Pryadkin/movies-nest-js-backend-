@@ -28,13 +28,33 @@ export class ActorService {
 			}
 		}
 
-		// Aggregation
-
-		return this.actorModel.find(options)
-			.select('-updateAt -__v')
-			.sort({
-				createdAt: 'desc'
-			}).exec()
+		return (
+			this.actorModel
+				.aggregate()
+				.match(options)
+				.lookup({
+					from: 'Movie',
+					localField: '_id',
+					foreignField: 'actors',
+					as: 'movies',
+				})
+				// .lookup({
+				// 	from: 'Movie',
+				// 	let: { id: '$_id' },
+				// 	pipeline: [
+				// 		{
+				// 			$match: { $expr: { $in: ['$$id', '$actors'] } },
+				// 		},
+				// 	],
+				// 	as: 'movies',
+				// })
+				.addFields({
+					countMovies: {$size: '$movies'},
+				})
+				.project({__v: 0, updatedAt: 0, movies: 0})
+				.sort({createdAt: -1})
+				.exec()
+		)
 	}
 
 	async bySlug(slug: string): Promise<DocumentType<ActorModel>> {
