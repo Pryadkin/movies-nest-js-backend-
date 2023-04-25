@@ -38,7 +38,6 @@ export class MovieController {
 		@Body('genreIds')
 		genreIds: Types.ObjectId[]
 	) {
-		console.log(genreIds)
 		return this.movieService.byGenres(genreIds)
 	}
 
