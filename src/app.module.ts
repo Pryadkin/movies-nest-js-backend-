@@ -1,15 +1,18 @@
 import {Module} from '@nestjs/common'
+import {ConfigModule, ConfigService} from '@nestjs/config'
+
 import {AppController} from './app.controller'
 import {AppService} from './app.service'
-import {ConfigModule, ConfigService} from '@nestjs/config'
-import {TypegooseModule} from 'nestjs-typegoose'
-import {getMongoDbConfig} from './config/mongo.config'
-import {AuthModule} from './auth/auth.module'
-import {UserModule} from './user/user.module'
-import {GenreModule} from './genre/genre.module'
-import {FilesModule} from './files/files.module'
-import {ActorModule} from './actor/actor.module'
 import {MovieModule} from './movie/movie.module'
+import {GenreModule} from './genre/genre.module'
+import {ActorModule} from './actor/actor.module'
+import {AuthModule} from './auth/auth.module'
+import {getMongoDbConfig} from './config/mongo.config'
+import {FilesModule} from './files/files.module'
+import {TelegramModule} from './telegram/telegram.module'
+import {UserModule} from './user/user.module'
+
+import {TypegooseModule} from 'nestjs-typegoose'
 import {RatingModule} from './rating/rating.module'
 
 @Module({
@@ -20,12 +23,13 @@ import {RatingModule} from './rating/rating.module'
       inject: [ConfigService],
       useFactory: getMongoDbConfig,
     }),
-    AuthModule,
-    UserModule,
-    GenreModule,
-    FilesModule,
-    ActorModule,
     MovieModule,
+    GenreModule,
+    ActorModule,
+    UserModule,
+    AuthModule,
+    FilesModule,
+    TelegramModule,
     RatingModule,
   ],
   controllers: [AppController],

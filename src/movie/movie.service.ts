@@ -5,11 +5,13 @@ import {InjectModel} from 'nestjs-typegoose'
 
 import {CreateMovieDto} from './dto/create-movie.dto'
 import {MovieModel} from './movie.model'
+import {TelegramService} from 'src/telegram/telegram.service'
 
 @Injectable()
 export class MovieService {
 	constructor(
 		@InjectModel(MovieModel) private readonly movieModel: ModelType<MovieModel>,
+		private readonly telegramService: TelegramService
 	) { }
 
 	async getAll(searchTerm?: string): Promise<DocumentType<MovieModel>[]> {
@@ -53,7 +55,7 @@ export class MovieService {
 		const isTypeCheck = Types.ObjectId.isValid(String(genreIds))
 
 		if (isTypeCheck) {
-			const doc = await this.movieModel.find({genres: genreIds}).exec()
+			const doc = await this.movieModel.find({genres: {$in: genreIds}}).exec()
 
 			if (doc.length === 0) throw new NotFoundException('Movies not found')
 			return doc
@@ -101,6 +103,11 @@ export class MovieService {
 		id: string,
 		dto: CreateMovieDto
 	): Promise<DocumentType<MovieModel> | null> {
+		if (!dto.isSendTelegram) {
+			await this.sendNotifications(dto)
+			dto.isSendTelegram = true
+		}
+
 		return this.movieModel.findByIdAndUpdate(id, dto, {new: true}).exec()
 	}
 
@@ -122,5 +129,25 @@ export class MovieService {
 			.exec()
 	}
 
+	/* Utilites */
+	async sendNotifications(dto: CreateMovieDto) {
+		// if (process.env.NODE_ENV !== 'development')
+		// console.log(this.telegramService)
+		await this.telegramService.sendPhoto('https://w.forfun.com/fetch/9d/9db2d4683d92f5f2045e9142fbd82633.jpeg')
 
+		const msg = `<b>${dto.title}</b>\n\n` + `${dto.description}\n\n`
+
+		await this.telegramService.sendMessage(msg, {
+			reply_markup: {
+				inline_keyboard: [
+					[
+						{
+							url: 'https://okko.tv/movie/free-guy',
+							text: '🍿 Go to watch',
+						},
+					],
+				],
+			},
+		})
+	}
 }
